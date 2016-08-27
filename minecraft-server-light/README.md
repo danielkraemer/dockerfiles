@@ -1,4 +1,8 @@
-This docker image provides the latest (see *Versions* section) vanilla Minecraft Server runnig with IBMs Small Footprint JRE ([SFJ](http://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/small_jre.html))
+This docker image provides the latest (see *Versions* section) vanilla Minecraft Server
+runnig with IBMs Small Footprint JRE ([SFJ](http://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/small_jre.html))
+
+IBMs Small Footprint JRE requires less memory and cpu. This images is also based
+on alpine, so less disk space is needed
 
 To simply use the latest stable version, run
 
@@ -152,7 +156,7 @@ services:
     volumes:
       - /home/luitzifa/mc1:/data
       - mc-sharedclasses:/shared
-    image: luitzifa:minecraft-server-light
+    image: luitzifa/minecraft-server-light
     environment:
       ICON: 'http://i.imgur.com/6V9U5hZ.png'
       MOTD: 'strange things gonna happen here'
@@ -179,7 +183,7 @@ services:
     volumes:
       - /home/luitzifa/mc2:/data
       - mc-sharedclasses:/shared
-    image: luitzifa:minecraft-server-light
+    image: luitzifa/minecraft-server-light
     environment:
       ICON: 'http://i.imgur.com/6V9U5hZ.png'
       MOTD: 'strange things gonna happen here'

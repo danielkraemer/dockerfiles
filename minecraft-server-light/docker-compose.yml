@@ -9,7 +9,7 @@ services:
     volumes:
       - /home/dkraemer/mc1:/data
       - mc-sharedclasses:/shared
-    image: dkraemer:minecraft-server-light
+    image: luitzifa/minecraft-server-light
     environment:
       ICON: 'http://i.imgur.com/6V9U5hZ.png'
       MOTD: 'strange things gonna happen here'
@@ -36,7 +36,7 @@ services:
     volumes:
       - /home/dkraemer/mc2:/data
       - mc-sharedclasses:/shared
-    image: dkraemer:minecraft-server-light
+    image: luitzifa/minecraft-server-light
     environment:
       ICON: 'http://i.imgur.com/6V9U5hZ.png'
       MOTD: 'strange things gonna happen here'
