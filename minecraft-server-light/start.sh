@@ -232,4 +232,4 @@ chown -R minecraft:minecraft $HOME
 chmod -R g+wX $HOME
 
 echo "starting minecraft-server"
-exec su -s /bin/sh -c "java $JVM_OPTS -jar $SERVER $@" minecraft 
+exec su -s /bin/sh -c "java $JVM_OPTS -jar $SERVER $@ nogui" minecraft 
