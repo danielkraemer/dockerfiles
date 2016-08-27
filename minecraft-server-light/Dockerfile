@@ -21,7 +21,7 @@ RUN chmod +x /usr/local/bin/* /start \
 
 WORKDIR /data
 
-ENTRYPOINT [ "/start" ]
+CMD [ "/start" ]
 
 ENV UID=1000 GID=1000 \
     MOTD="A Minecraft Server Powered by Docker" \

@@ -1,14 +1,8 @@
-
-[![Docker Pulls](https://img.shields.io/docker/pulls/itzg/minecraft-server.svg)](https://hub.docker.com/r/itzg/minecraft-server/)
-[![Docker Stars](https://img.shields.io/docker/stars/itzg/minecraft-server.svg?maxAge=2592000)](https://hub.docker.com/r/itzg/minecraft-server/)
-
-This docker image provides a Minecraft Server that will automatically download the latest stable
-version at startup. You can also run/upgrade to any specific version or the
-latest snapshot. See the *Versions* section below for more information.
+This docker image provides the latest (see *Versions* section) vanilla Minecraft Server runnig with IBMs Small Footprint JRE ([SFJ](http://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/small_jre.html))
 
 To simply use the latest stable version, run
 
-    docker run -d -p 25565:25565 --name mc itzg/minecraft-server
+    docker run -d -p 25565:25565 --name mc luitzifa/minecraft-server-light
 
 where the standard server port, 25565, will be exposed on your host machine.
 
@@ -22,7 +16,7 @@ will serve your Minecraft server on your host's port 25566 since the `-p` syntax
 
 Speaking of multiple servers, it's handy to give your containers explicit names using `--name`, such as
 
-    docker run -d -p 25565:25565 --name mc itzg/minecraft-server
+    docker run -d -p 25565:25565 --name mc luitzifa/minecraft-server-light
 
 With that you can easily view the logs, stop, or re-start the container:
 
@@ -37,7 +31,7 @@ With that you can easily view the logs, stop, or re-start the container:
 
 In order to attach and interact with the Minecraft server, add `-it` when starting the container, such as
 
-    docker run -d -it -p 25565:25565 --name mc itzg/minecraft-server
+    docker run -d -it -p 25565:25565 --name mc luitzifa/minecraft-server-light
 
 With that you can attach and interact at any time using
 
@@ -54,13 +48,13 @@ Unless you're on a home/private LAN, you should [enable TLS access](https://docs
 
 ## EULA Support
 
-Mojang now requires accepting the [Minecraft EULA](https://account.mojang.com/documents/minecraft_eula). To accept add
+Mojang requires accepting the [Minecraft EULA](https://account.mojang.com/documents/minecraft_eula). To accept add
 
         -e EULA=TRUE
 
 such as
 
-        docker run -d -it -e EULA=TRUE -p 25565:25565 --name mc itzg/minecraft-server
+        docker run -d -it -e EULA=TRUE -p 25565:25565 --name mc luitzifa/minecraft-server-light
 
 ## Attaching data directory to host filesystem
 
@@ -98,18 +92,6 @@ For example, to use the latest snapshot:
 or a specific version:
 
     docker run -d -e VERSION=1.7.9 ...
-
-## Running a Forge Server
-
-Enable Forge server mode by adding a `-e TYPE=FORGE` to your command-line.
-By default the container will run the `RECOMMENDED` version of [Forge server](http://www.minecraftforge.net/wiki/)
-but you can also choose to run a specific version with `-e FORGEVERSION=10.13.4.1448`.
-
-    $ docker run -d -v /path/on/host:/data -e VERSION=1.7.10 \
-        -e TYPE=FORGE -e FORGEVERSION=10.13.4.1448 \
-        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
-
-In order to add mods, you have two options.
 
 ### Using the /data volume
 
@@ -151,141 +133,73 @@ This works well if you want to have a common set of modules in a separate
 location, but still have multiple worlds with different server requirements
 in either persistent volumes or a downloadable archive.
 
-## Running a Bukkit/Spigot server
-
-Enable Bukkit/Spigot server mode by adding a `-e TYPE=BUKKIT -e VERSION=1.8` or `-e TYPE=SPIGOT -e VERSION=1.8` to your command-line.
-
-    docker run -d -v /path/on/host:/data \
-        -e TYPE=SPIGOT -e VERSION=1.8 \
-        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
-
-You can build spigot from source by adding `-e BUILD_FROM_SOURCE=true`
-
-__NOTE: to avoid pegging the CPU when running Spigot,__ you will need to
-pass `--noconsole` at the very end of the command line and not use `-it`. For example,
-
-    docker run -d -v /path/on/host:/data \
-        -e TYPE=SPIGOT -e VERSION=1.8 \
-        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server --noconsole
-
-
-You can install Bukkit plugins in two ways...
-
-### Using the /data volume
-
-This is the easiest way if you are using a persistent `/data` mount.
-
-To do this, you will need to attach the container's `/data` directory
-(see "Attaching data directory to host filesystem”).
-Then, you can add plugins to the `/path/on/host/plugins` folder you chose. From the example above,
-the `/path/on/host` folder contents look like:
-
-```
-/path/on/host
-├── plugins
-│   └── ... INSTALL PLUGINS HERE ...
-├── ops.json
-├── server.properties
-├── whitelist.json
-└── ...
-```
-
-If you add plugins while the container is running, you'll need to restart it to pick those
-up:
-
-    docker stop mc
-    docker start mc
-
-### Using separate mounts
-
-This is the easiest way if you are using an ephemeral `/data` filesystem,
-or downloading a world with the `WORLD` option.
-
-There is one additional volume that can be mounted; `/plugins`.  
-Any files in this filesystem will be copied over to the main
-`/data/plugins` filesystem before starting Minecraft.
-
-This works well if you want to have a common set of plugins in a separate
-location, but still have multiple worlds with different server requirements
-in either persistent volumes or a downloadable archive.
-
-## Running a PaperSpigot server
-
-Enable PaperSpigot server mode by adding a `-e TYPE=PAPER -e VERSION=1.9.4` to your command-line.
-
-    docker run -d -v /path/on/host:/data \
-        -e TYPE=PAPER -e VERSION=1.9.4 \
-        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server
-
-__NOTE: to avoid pegging the CPU when running PaperSpigot,__ you will need to
-pass `--noconsole` at the very end of the command line and not use `-it`. For example,
-
-    docker run -d -v /path/on/host:/data \
-        -e TYPE=PAPER -e VERSION=1.9.4 \
-        -p 25565:25565 -e EULA=TRUE --name mc itzg/minecraft-server --noconsole
-
-You can install Bukkit plugins in two ways...
-
-### Using the /data volume
-
-This is the easiest way if you are using a persistent `/data` mount.
-
-To do this, you will need to attach the container's `/data` directory
-(see "Attaching data directory to host filesystem”).
-Then, you can add plugins to the `/path/on/host/plugins` folder you chose. From the example above,
-the `/path/on/host` folder contents look like:
-
-```
-/path/on/host
-├── plugins
-│   └── ... INSTALL PLUGINS HERE ...
-├── ops.json
-├── server.properties
-├── whitelist.json
-└── ...
-```
-
-If you add plugins while the container is running, you'll need to restart it to pick those
-up:
-
-    docker stop mc
-    docker start mc
-
-### Using separate mounts
-
-This is the easiest way if you are using an ephemeral `/data` filesystem,
-or downloading a world with the `WORLD` option.
-
-There is one additional volume that can be mounted; `/plugins`.  
-Any files in this filesystem will be copied over to the main
-`/data/plugins` filesystem before starting Minecraft.
-
-This works well if you want to have a common set of plugins in a separate
-location, but still have multiple worlds with different server requirements
-in either persistent volumes or a downloadable archive.
-
 ## Using Docker Compose
 
 Rather than type the server options below, the port mappings above, etc
 every time you want to create new Minecraft server, you can now use
-[Docker Compose](https://docs.docker.com/compose/). Start with a
-`docker-compose.yml` file like the following:
+[Docker Compose](https://docs.docker.com/compose/). Start two Servers
+with a `docker-compose.yml` file like the following:
 
 ```
-minecraft-server:
-  ports:
-    - "25565:25565"
-
-  environment:
-    EULA: "TRUE"
-
-  image: itzg/minecraft-server
-
-  container_name: mc
-
-  tty: true
-  stdin_open: true
-  restart: always
+version: '2'
+volumes:
+  mc-sharedclasses:
+    driver: local
+services:
+  mc1:
+    ports:
+      - "25565:25565"
+    volumes:
+      - /home/luitzifa/mc1:/data
+      - mc-sharedclasses:/shared
+    image: luitzifa:minecraft-server-light
+    environment:
+      ICON: 'http://i.imgur.com/6V9U5hZ.png'
+      MOTD: 'strange things gonna happen here'
+      JVM_OPTS: '-Xmx1024M -Xms1024M -Xshareclasses:cacheDir=/shared'
+      EULA: 'TRUE'
+      OPS: 'Luitzifa,nobody'
+      WHITELIST: 'Luitzifa,nobody'
+      MODE: 'survival'
+      DIFFICULTY: 'normal'
+      ALLOW_NETHER: 'true'
+      SPAWN_ANIMALS: 'true'
+      SPAWN_MONSTERS: 'true'
+      SPAWN_NPCS: 'true'
+      GENERATE_STRUCTURES: 'true'
+      UID: 1000
+      GID: 1000
+    network_mode: "bridge"
+    tty: true
+    stdin_open: true
+    restart: always
+  mc2:
+    ports:
+      - "25566:25565"
+    volumes:
+      - /home/luitzifa/mc2:/data
+      - mc-sharedclasses:/shared
+    image: luitzifa:minecraft-server-light
+    environment:
+      ICON: 'http://i.imgur.com/6V9U5hZ.png'
+      MOTD: 'strange things gonna happen here'
+      JVM_OPTS: '-Xmx1024M -Xms1024M -Xshareclasses:cacheDir=/shared'
+      EULA: 'TRUE'
+      OPS: 'Luitzifa,nobody'
+      WHITELIST: 'Luitzifa,nobody'
+      MODE: 'creative'
+      DIFFICULTY: 'normal'
+      ALLOW_NETHER: 'true'
+      SPAWN_ANIMALS: 'false'
+      SPAWN_MONSTERS: 'false'
+      SPAWN_NPCS: 'false'
+      GENERATE_STRUCTURES: 'true'
+      UID: 1000
+      GID: 1000
+    network_mode: "bridge"
+    tty: true
+    stdin_open: true
+    restart: always
 ```
 
 and in the same directory as that file run
@@ -342,13 +256,11 @@ By default the query port will be `25565` (UDP) but can easily be changed with t
 
     docker run -d -e ENABLE_QUERY=true
 
-
 ### Max players
 
 By default max players is 20, you can increase this with the `MAX_PLAYERS` variable.
 
     docker run -d -e MAX_PLAYERS=50
-
 
 ### Max world size
 
@@ -503,40 +415,6 @@ where the default is "world":
 **NOTE:** if running multiple containers be sure to either specify a different `-v` host directory for each
 `LEVEL` in use or don't use `-v` and the container's filesystem will keep things encapsulated.
 
-### Downloadable world
-
-Instead of mounting the `/data` volume, you can instead specify the URL of
-a ZIP file containing an archived world.  This will be downloaded, and
-unpacked in the `/data` directory; if it does not contain a subdirectory
-called `world/` then it will be searched for a file `level.dat` and the
-containing subdirectory renamed to `world`.  This means that most of the
-archived Minecraft worlds downloadable from the Internet will already be in
-the correct format.
-
-The ZIP file may also contain a `server.properties` file and `modules`
-directory, if required.
-
-    docker run -d -e WORLD=http://www.example.com/worlds/MySave.zip ...
-
-**NOTE:** Unless you also mount `/data` as an external volume, this world
-will be deleted when the container is deleted.
-
-**NOTE:** This URL must be accessible from inside the container.  Therefore,
-you should use an IP address or a globally resolveable FQDN, or else the
-name of a linked container.
-
-### Downloadable mod/plugin pack for Forge, Bukkit, and Spigot Servers
-
-Like the `WORLD` option above, you can specify the URL of a "mod pack"
-to download and install into `mods` for Forge or `plugins` for Bukkit/Spigot.
-To use this option pass the environment variable `MODPACK`, such as
-
-    docker run -d -e MODPACK=http://www.example.com/mods/modpack.zip ...
-
-**NOTE:** The referenced URL must be a zip file with one or more jar files at the
-top level of the zip archive. Make sure the jars are compatible with the
-particular `TYPE` of server you are running.
-
 ### Online mode
 
 By default, server checks connecting players against Minecraft's account database. If you want to create an offline server or your server is not connected to the internet, you can disable the server to try connecting to minecraft.net to authenticate players with environment variable `ONLINE_MODE`, like this
@@ -551,3 +429,8 @@ The Java memory limit can be adjusted using the `JVM_OPTS` environment variable,
 the setting shown in the example (max and min at 1024 MB):
 
     docker run -e 'JVM_OPTS=-Xmx1024M -Xms1024M' ...
+
+### Using the Class Data Sharing feature
+IBM SDK, Java Technology Edition provides a feature called [Class data sharing](http://www-01.ibm.com/support/knowledgecenter/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/diag/understanding/shared_classes.html). This mechanism offers transparent and dynamic sharing of data between multiple Java virtual machines (JVMs) running on the same host thereby reducing the amount of physical memory consumed by each JVM instance. By providing partially verified classes and possibly pre-loaded classes in memory, this mechanism also improves the start up time of the JVM.
+
+    docker run -e 'JVM_OPTS=-Xmx1024M -Xms1024M -Xshareclasses:cacheDir=/shared' -v shared:/shared ...

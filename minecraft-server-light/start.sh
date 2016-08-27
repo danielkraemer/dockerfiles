@@ -3,9 +3,13 @@
 set -e
 export HOME=/data
 cd $HOME
+sed -i "/^minecraft/s#1000#$UID#g" /etc/passwd
+sed -i "/^minecraft/s#1000#$GID#g" /etc/group
 
-chown -R minecraft:minecraft $HOME
-chmod -R g+wX $HOME
+SHARED_PATH=$(echo $JVM_OPTS| cut -d'=' -f2|cut -d' ' -f1)
+if [ -n "$SHARED_PATH" ]; then
+  chmod go+rwx $SHARED_PATH
+fi
 
 if [ ! -e $HOME/eula.txt ]; then
   if [ "$EULA" != "" ]; then
@@ -47,7 +51,7 @@ if [ ! -e $SERVER ]; then
   wget -q https://s3.amazonaws.com/Minecraft.Download/versions/$VANILLA_VERSION/$SERVER
 fi
 
-function setServerProp {
+setServerProp() {
   local prop=$1
   local var=$2
   if [ -n "$var" ]; then
@@ -96,7 +100,7 @@ if [ ! -e server.properties ]; then
 
   if [ -n "$LEVEL_TYPE" ]; then
     # normalize to uppercase
-    LEVEL_TYPE=${LEVEL_TYPE^^}
+    LEVEL_TYPE=$(echo $LEVEL_TYPE|tr '[:lower:]' '[:upper:]')
     echo "Setting level type to $LEVEL_TYPE"
     # check for valid values and only then set
     case $LEVEL_TYPE in
@@ -134,8 +138,10 @@ if [ ! -e server.properties ]; then
   fi
 
   if [ -n "$MODE" ]; then
+    # normalize to lowercase
+    MODE=$(echo $MODE|tr '[:upper:]' '[:lower:]')
     echo "Setting mode"
-    case ${MODE,,?} in
+    case ${MODE} in
       0|1|2|3)
         ;;
       s*)
@@ -209,6 +215,9 @@ do
     cp -rf "$c" /data/config
   fi
 done
+
+chown -R minecraft:minecraft $HOME
+chmod -R g+wX $HOME
 
 echo "starting minecraft-server"
 exec su -s /bin/sh -c "java $JVM_OPTS -jar $SERVER $@" minecraft 
