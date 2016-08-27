@@ -2,9 +2,7 @@ FROM ibmjava:sfj-alpine
 
 MAINTAINER dkraemer
 
-ENV update at 2016-08-27
-RUN apk --no-cache upgrade \
-  && apk --no-cache add imagemagick jq curl
+RUN apk --no-cache add jq curl
 
 RUN set -x \
   && addgroup -g 1000 minecraft \

@@ -6,7 +6,7 @@ cd $HOME
 sed -i "/^minecraft/s#1000#$UID#g" /etc/passwd
 sed -i "/^minecraft/s#1000#$GID#g" /etc/group
 
-SHARED_PATH=$(echo $JVM_OPTS| cut -d'=' -f2|cut -d' ' -f1)
+SHARED_PATH=$(echo $JVM_OPTS|grep shareclasses| cut -d'=' -f2|cut -d' ' -f1)
 if [ -n "$SHARED_PATH" ]; then
   chmod go+rwx $SHARED_PATH
 fi
@@ -56,7 +56,7 @@ setServerProp() {
   local var=$2
   if [ -n "$var" ]; then
     echo "Setting $prop to $var"
-    sed -i "/$prop\s*=/ c $prop=$var" /data/server.properties
+    sed -i "/$prop\s*=/ c $prop=$var" $HOME/server.properties
   fi
 
 }
@@ -67,8 +67,8 @@ if [ ! -e server.properties ]; then
 
   if [ -n "$WHITELIST" ]; then
     echo "Creating whitelist"
-    sed -i "/whitelist\s*=/ c whitelist=true" /data/server.properties
-    sed -i "/white-list\s*=/ c white-list=true" /data/server.properties
+    sed -i "/whitelist\s*=/ c whitelist=true" $HOME/server.properties
+    sed -i "/white-list\s*=/ c white-list=true" $HOME/server.properties
   fi
 
   setServerProp "motd" "$MOTD"
@@ -105,7 +105,7 @@ if [ ! -e server.properties ]; then
     # check for valid values and only then set
     case $LEVEL_TYPE in
       DEFAULT|FLAT|LARGEBIOMES|AMPLIFIED|CUSTOMIZED)
-        sed -i "/level-type\s*=/ c level-type=$LEVEL_TYPE" /data/server.properties
+        sed -i "/level-type\s*=/ c level-type=$LEVEL_TYPE" $HOME/server.properties
         ;;
       *)
         echo "Invalid LEVEL_TYPE: $LEVEL_TYPE"
@@ -134,7 +134,7 @@ if [ ! -e server.properties ]; then
         ;;
     esac
     echo "Setting difficulty to $DIFFICULTY"
-    sed -i "/difficulty\s*=/ c difficulty=$DIFFICULTY" /data/server.properties
+    sed -i "/difficulty\s*=/ c difficulty=$DIFFICULTY" $HOME/server.properties
   fi
 
   if [ -n "$MODE" ]; then
@@ -162,7 +162,7 @@ if [ ! -e server.properties ]; then
         ;;
     esac
 
-    sed -i "/gamemode\s*=/ c gamemode=$MODE" /data/server.properties
+    sed -i "/gamemode\s*=/ c gamemode=$MODE" $HOME/server.properties
   fi
 fi
 
@@ -179,15 +179,27 @@ fi
 
 if [ -n "$ICON" -a ! -e server-icon.png ]; then
   echo "Using server icon from $ICON..."
-  # Not sure what it is yet...call it "img"
-  wget -q -O /tmp/icon.img $ICON
-  specs=$(identify /tmp/icon.img | awk '{print $2,$3}')
-  if [ "$specs" = "PNG 64x64" ]; then
-    mv /tmp/icon.img /data/server-icon.png
-  else
-    echo "Converting image to 64x64 PNG..."
-    convert /tmp/icon.img -resize 64x64! /data/server-icon.png
-  fi
+  #converting with rsz.io
+  CONVERT_SERVICE_URL=$(echo -e $ICON | awk '
+    BEGIN{
+      FS="/";
+      proto="http://"
+    }
+    {
+      domcol=3;
+      if($1 !~ /http/)
+      {
+        proto="http://";
+        domcol=1
+      }
+      printf("%s%s.rsz.io",proto,$domcol);
+      for(i=(domcol+1); i<=NF;i++)
+      {
+        printf("/%s",$i)
+      }
+      printf("?width=64&hight=64&format=png\n")
+    }')
+  wget -q -O $HOME/server-icon.png $CONVERT_SERVICE_URL
 fi
 
 # Make sure files exist to avoid errors
@@ -199,20 +211,20 @@ if [ ! -e banned-ips.json ]; then
 fi
 
 # If any modules have been provided, copy them over
-[ -d /data/mods ] || mkdir /data/mods
+[ -d $HOME/mods ] || mkdir $HOME/mods
 for m in /mods/*.jar
 do
   if [ -f "$m" ]; then
     echo Copying mod `basename "$m"`
-    cp -f "$m" /data/mods
+    cp -f "$m" $HOME/mods
   fi
 done
-[ -d /data/config ] || mkdir /data/config
+[ -d $HOME/config ] || mkdir $HOME/config
 for c in /config/*
 do
   if [ -f "$c" ]; then
     echo Copying configuration `basename "$c"`
-    cp -rf "$c" /data/config
+    cp -rf "$c" $HOME/config
   fi
 done
 
