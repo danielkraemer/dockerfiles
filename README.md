@@ -1,8 +1,6 @@
-This docker image provides the latest (see *Versions* section) vanilla Minecraft Server
-runnig with IBMs Small Footprint JRE ([SFJ](http://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/small_jre.html))
+This docker image provides the latest (see *Versions* section) vanilla Minecraft server runnig with IBMs Small Footprint JRE ([SFJ](http://www.ibm.com/support/knowledgecenter/en/SSYKE2_8.0.0/com.ibm.java.lnx.80.doc/user/small_jre.html))
 
-IBMs Small Footprint JRE requires less memory and cpu. This images is also based
-on alpine, so less disk space is needed
+IBMs Small Footprint JRE requires less memory and cpu. This images is also based on alpine, so less disk space is needed
 
 To simply use the latest stable version, run
 
@@ -10,8 +8,7 @@ To simply use the latest stable version, run
 
 where the standard server port, 25565, will be exposed on your host machine.
 
-If you want to serve up multiple Minecraft servers or just use an alternate port,
-change the host-side port mapping such as
+If you want to serve up multiple Minecraft servers or just use an alternate port, change the host-side port mapping such as
 
     docker run -p 25566:25565 ...
 
@@ -31,6 +28,7 @@ With that you can easily view the logs, stop, or re-start the container:
 
     docker start mc
 
+
 ## Interacting with the server
 
 In order to attach and interact with the Minecraft server, add `-it` when starting the container, such as
@@ -43,12 +41,12 @@ With that you can attach and interact at any time using
 
 and then Control-p Control-q to **detach**.
 
-For remote access, configure your Docker daemon to use a `tcp` socket (such as `-H tcp://0.0.0.0:2375`)
-and attach from another machine:
+For remote access, configure your Docker daemon to use a `tcp` socket (such as `-H tcp://0.0.0.0:2375`) and attach from another machine:
 
     docker -H $HOST:2375 attach mc
 
 Unless you're on a home/private LAN, you should [enable TLS access](https://docs.docker.com/articles/https/).
+
 
 ## EULA Support
 
@@ -60,15 +58,14 @@ such as
 
         docker run -d -it -e EULA=TRUE -p 25565:25565 --name mc luitzifa/minecraft-server-light
 
+
 ## Attaching data directory to host filesystem
 
-In order to readily access the Minecraft data, use the `-v` argument
-to map a directory on your host machine to the container's `/data` directory, such as:
+In order to readily access the Minecraft data, use the `-v` argument to map a directory on your host machine to the container's `/data` directory, such as:
 
     docker run -d -v /path/on/host:/data ...
 
-When attached in this way you can stop the server, edit the configuration under your attached `/path/on/host`
-and start the server again with `docker start CONTAINERID` to pick up the new configuration.
+When attached in this way you can stop the server, edit the configuration under your attached `/path/on/host` and start the server again with `docker start CONTAINERID` to pick up the new configuration.
 
 **NOTE**: By default, the files in the attached directory will be owned by the host user with UID of 1000 and host group with GID of 1000.
 You can use an different UID and GID by passing the options:
@@ -80,6 +77,7 @@ Here is one way to find the UID and GID:
 
     id some_host_user
     getent group some_host_group
+
 
 ## Versions
 
@@ -97,14 +95,12 @@ or a specific version:
 
     docker run -d -e VERSION=1.7.9 ...
 
+
 ### Using the /data volume
 
 This is the easiest way if you are using a persistent `/data` mount.
 
-To do this, you will need to attach the container's `/data` directory
-(see "Attaching data directory to host filesystem”).
-Then, you can add mods to the `/path/on/host/mods` folder you chose. From the example above,
-the `/path/on/host` folder contents look like:
+To do this, you will need to attach the container's `/data` directory (see "Attaching data directory to host filesystem”). Then, you can add mods to the `/path/on/host/mods` folder you chose. From the example above, the `/path/on/host` folder contents look like:
 
 ```
 /path/on/host
@@ -118,31 +114,24 @@ the `/path/on/host` folder contents look like:
 └── ...
 ```
 
-If you add mods while the container is running, you'll need to restart it to pick those
-up:
+If you add mods while the container is running, you'll need to restart it to pick those up:
 
     docker stop mc
     docker start mc
 
+
 ### Using separate mounts
 
-This is the easiest way if you are using an ephemeral `/data` filesystem,
-or downloading a world with the `WORLD` option.
+This is the easiest way if you are using an ephemeral `/data` filesystem, or downloading a world with the `WORLD` option.
 
-There are two additional volumes that can be mounted; `/mods` and `/config`.  
-Any files in either of these filesystems will be copied over to the main
-`/data` filesystem before starting Minecraft.
+There are two additional volumes that can be mounted; `/mods` and `/config`. Any files in either of these filesystems will be copied over to the main `/data` filesystem before starting Minecraft.
 
-This works well if you want to have a common set of modules in a separate
-location, but still have multiple worlds with different server requirements
-in either persistent volumes or a downloadable archive.
+This works well if you want to have a common set of modules in a separate location, but still have multiple worlds with different server requirements in either persistent volumes or a downloadable archive.
+
 
 ## Using Docker Compose
 
-Rather than type the server options below, the port mappings above, etc
-every time you want to create new Minecraft server, you can now use
-[Docker Compose](https://docs.docker.com/compose/). Start two Servers
-with a `docker-compose.yml` file like the following:
+Rather than type the server options below, the port mappings above, etc every time you want to create new Minecraft server, you can now use [Docker Compose](https://docs.docker.com/compose/). Start two Servers with a `docker-compose.yml` file like the following:
 
 ```
 version: '2'
@@ -210,8 +199,8 @@ and in the same directory as that file run
 
     docker-compose -d up
 
-Now, go play...or adjust the  `environment` section to configure
-this server instance.    
+Now, go play...or adjust the  `environment` section to configure this server instance.    
+
 
 ## Server configuration
 
@@ -221,9 +210,8 @@ The difficulty level (default: `easy`) can be set like:
 
     docker run -d -e DIFFICULTY=hard ...
 
-Valid values are: `peaceful`, `easy`, `normal`, and `hard`, and an
-error message will be output in the logs if it's not one of these
-values.
+Valid values are: `peaceful`, `easy`, `normal`, and `hard`, and an error message will be output in the logs if it's not one of these values.
+
 
 ### Whitelist Players
 
@@ -233,18 +221,20 @@ To whitelist players for your Minecraft server, pass the Minecraft usernames sep
 
 If the `WHITELIST` environment variable is not used, any user can join your Minecraft server if it's publicly accessible.
 
+
 ### Op/Administrator Players
 
 To add more "op" (aka adminstrator) users to your Minecraft server, pass the Minecraft usernames separated by commas via the `OPS` environment variable, such as
 
 	docker run -d -e OPS=user1,user2 ...
 
+
 ### Server icon
 
-A server icon can be configured using the `ICON` variable. The image will be automatically
-downloaded, scaled, and converted from any other image format:
+A server icon can be configured using the `ICON` variable. The image will be automatically downloaded, scaled, and converted from any other image format:
 
     docker run -d -e ICON=http://..../some/image.png ...
+
 
 ### Rcon
 
@@ -253,6 +243,7 @@ By default rcon port will be `25575` but can easily be changed with the `RCON_PO
 
     docker run -d -e ENABLE_RCON=true -e RCON_PASSWORD=testing
 
+
 ### Query
 
 Enabling this will enable the gamespy query protocol.
@@ -260,11 +251,13 @@ By default the query port will be `25565` (UDP) but can easily be changed with t
 
     docker run -d -e ENABLE_QUERY=true
 
+
 ### Max players
 
 By default max players is 20, you can increase this with the `MAX_PLAYERS` variable.
 
     docker run -d -e MAX_PLAYERS=50
+
 
 ### Max world size
 
@@ -272,11 +265,13 @@ This sets the maximum possible size in blocks, expressed as a radius, that the w
 
     docker run -d -e MAX_WORLD_SIZE=10000   
 
+
 ### Allow Nether
 
 Allows players to travel to the Nether.
 
     docker run -d -e ALLOW_NETHER=true
+
 
 ### Announce Player Achievements
 
@@ -284,11 +279,13 @@ Allows server to announce when a player gets an achievement.
 
     docker run -d -e ANNOUNCE_PLAYER_ACHIEVEMENTS=true   
 
+
 ### Enable  Command Block
 
 Enables command blocks
 
      docker run -d -e ENABLE_COMMAND_BLOCK=true
+
 
 ### Force Gamemode
 
@@ -298,6 +295,7 @@ Force players to join in the default game mode.
 
     docker run -d -e FORCE_GAMEMODE=false
 
+
 ### Generate Structures
 
 Defines whether structures (such as villages) will be generated.
@@ -306,18 +304,20 @@ Defines whether structures (such as villages) will be generated.
 
     docker run -d -e GENERATE_STRUCTURES=true
 
+
 ### Hardcore
 
 If set to true, players will be set to spectator mode if they die.
 
     docker run -d -e HARDCORE=false
 
+
 ### Max Build Height
 
-The maximum height in which building is allowed.
-Terrain may still naturally generate above a low height limit.
+The maximum height in which building is allowed. Terrain may still naturally generate above a low height limit.
 
     docker run -d -e MAX_BUILD_HEIGHT=256
+
 
 ### Max Tick Time
 
@@ -326,11 +326,13 @@ Setting this to -1 will disable watchdog entirely
 
     docker run -d -e MAX_TICK_TIME=60000
 
+
 ### Spawn Animals
 
 Determines if animals will be able to spawn.
 
     docker run -d -e SPAWN_ANIMALS=true
+
 
 ### Spawn Monsters
 
@@ -338,11 +340,13 @@ Determines if monsters will be spawned.
 
     docker run -d -e SPAWN_MONSTERS=true
 
+
 ### Spawn NPCs
 
 Determines if villagers will be spawned.
 
     docker run -d -e SPAWN_NPCS=true
+
 
 ### View Distance
 Sets the amount of world data the server sends the client, measured in chunks in each direction of the player (radius, not diameter).
@@ -350,18 +354,17 @@ It determines the server-side viewing distance.
 
     docker run -d -e VIEW_DISTANCE=10
 
+
 ### Level Seed
 
 If you want to create the Minecraft level with a specific seed, use `SEED`, such as
 
     docker run -d -e SEED=1785852800490497919 ...
 
+
 ### Game Mode
 
-By default, Minecraft servers are configured to run in Survival mode. You can
-change the mode using `MODE` where you can either provide the [standard
-numerical values](http://minecraft.gamepedia.com/Game_mode#Game_modes) or the
-shortcut values:
+By default, Minecraft servers are configured to run in Survival mode. You can change the mode using `MODE` where you can either provide the [standard numerical values](http://minecraft.gamepedia.com/Game_mode#Game_modes) or the shortcut values:
 
 * creative
 * survival
@@ -372,26 +375,26 @@ For example:
 
     docker run -d -e MODE=creative ...
 
+
 ### Message of the Day
 
 The message of the day, shown below each server entry in the UI, can be changed with the `MOTD` environment variable, such as
 
     docker run -d -e 'MOTD=My Server' ...
 
-If you leave it off, the last used or default message will be used. _The example shows how to specify a server
-message of the day that contains spaces by putting quotes around the whole thing._
+If you leave it off, the last used or default message will be used. _The example shows how to specify a server message of the day that contains spaces by putting quotes around the whole thing._
+
 
 ### PVP Mode
 
-By default, servers are created with player-vs-player (PVP) mode enabled. You can disable this with the `PVP`
-environment variable set to `false`, such as
+By default, servers are created with player-vs-player (PVP) mode enabled. You can disable this with the `PVP` environment variable set to `false`, such as
 
     docker run -d -e PVP=false ...
 
+
 ### Level Type and Generator Settings
 
-By default, a standard world is generated with hills, valleys, water, etc. A different level type can
-be configured by setting `LEVEL_TYPE` to
+By default, a standard world is generated with hills, valleys, water, etc. A different level type can be configured by setting `LEVEL_TYPE` to
 
 * DEFAULT
 * FLAT
@@ -401,23 +404,23 @@ be configured by setting `LEVEL_TYPE` to
 
 Descriptions are available at the [gamepedia](http://minecraft.gamepedia.com/Server.properties).
 
-When using a level type of `FLAT` and `CUSTOMIZED`, you can further configure the world generator
-by passing [custom generator settings](http://minecraft.gamepedia.com/Superflat).
+When using a level type of `FLAT` and `CUSTOMIZED`, you can further configure the world generator by passing [custom generator settings](http://minecraft.gamepedia.com/Superflat).
 **Since generator settings usually have ;'s in them, surround the -e value with a single quote, like below.**
 
 For example (just the `-e` bits):
 
     -e LEVEL_TYPE=flat -e 'GENERATOR_SETTINGS=3;minecraft:bedrock,3*minecraft:stone,52*minecraft:sandstone;2;'
 
+
 ### World Save Name
 
-You can either switch between world saves or run multiple containers with different saves by using the `LEVEL` option,
-where the default is "world":
+You can either switch between world saves or run multiple containers with different saves by using the `LEVEL` option, where the default is "world":
 
     docker run -d -e LEVEL=bonus ...
 
 **NOTE:** if running multiple containers be sure to either specify a different `-v` host directory for each
 `LEVEL` in use or don't use `-v` and the container's filesystem will keep things encapsulated.
+
 
 ### Online mode
 
@@ -429,8 +432,7 @@ By default, server checks connecting players against Minecraft's account databas
 
 ### Memory Limit
 
-The Java memory limit can be adjusted using the `JVM_OPTS` environment variable, where the default is
-the setting shown in the example (max and min at 1024 MB):
+The Java memory limit can be adjusted using the `JVM_OPTS` environment variable, where the default is the setting shown in the example (max and min at 1024 MB):
 
     docker run -e 'JVM_OPTS=-Xmx1024M -Xms1024M' ...
 
